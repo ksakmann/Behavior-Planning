@@ -9,6 +9,7 @@
 #include <map>
 #include <string>
 #include <iterator>
+#include <algorithm>
 
 using namespace std;
 
@@ -83,6 +84,8 @@ public:
   void realize_prep_lane_change(map<int,vector< vector<int> > > predictions, string direction);
 
   vector<vector<int> > generate_predictions(int horizon);
+
+  vector<string> get_successor_states();
 
 };
 

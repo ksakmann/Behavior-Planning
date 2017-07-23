@@ -41,7 +41,7 @@ int main() {
 	//configuration data: speed limit, num_lanes, goal_s, goal_lane, max_acceleration
 
 	int num_lanes = LANE_SPEEDS.size();
-	vector<int> ego_config = {SPEED_LIMIT,num_lanes,goal_s,goal_lane,MAX_ACCEL};
+	vector<int> ego_config = {SPEED_LIMIT,num_lanes,MAX_ACCEL,goal_lane,goal_s};
 	 
 	road.add_ego(2,0, ego_config);
 	int timestep = 0;
@@ -59,7 +59,7 @@ int main() {
 	Vehicle ego = road.get_ego();
 	if (ego.lane == GOAL[1])
 	{
-		cout << "You got to the goal in " << timestep << " seconds!" << endl;
+		cout << "You got to the goal in lane " << ego.lane  << " in " << timestep << " seconds!" << endl;
 	}
 	else
 	{
