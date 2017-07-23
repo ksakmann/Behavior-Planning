@@ -102,33 +102,63 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
 
     */
 
-    //vector<string> possible_successor_states =  
+    auto kl_cost = [this]() {
+        auto dl = (lane - goal_lane);        
+        return dl * dl;
+    };
+
+    auto plc_cost = [this](int delta_lane) {
+        auto dl = (lane + delta_lane - goal_lane);
+        //cout << "dl " << dl << " lane " << lane << " delta_lane " << delta_lane << " goal lane " << goal_lane << endl;
+        return dl * dl;
+    };
+
+    auto cl_cost = [this](int delta_lane, const map<int, vector<vector<int>>>& predictions) {
+
+        bool collision = false;
+        for (auto it = predictions.begin(); it != predictions.end(); ++it) {
+
+            int now = 0;
+            int v_id = it->first;
+            vector<vector<int> > v = it->second;
+
+            //bool collision = (lane == v[now][0] ) && (abs(s - v[now][1]) <= L);
+
+            //if (collision) return 1E7;
+
+        }
+
+        auto dl = (lane + delta_lane - goal_lane);
+        return dl*dl;
+
+    };
+
     vector<string> successor_states = get_successor_states(); 
-    for (auto state: successor_states) cout << state << " " << endl;
-        
-    for (int i = 1; i < predictions.size(); ++i) {
-        for (int j = 0; j < predictions[i].size(); ++j) {
-            cout << "ID "    << i
-                 << " Lane:" << predictions[i][j][0] 
-                 << " S:"    << predictions[i][j][1] << endl;
-        }
+    map<string,double> costs;
+
+    costs["KL"] = kl_cost();
+    costs["PLCL"] = plc_cost(1);
+    costs["PLCR"] = plc_cost(-1);
+    costs["LCL"] = cl_cost(1, predictions);
+    costs["LCR"] = cl_cost(-1, predictions);
+
+    
+    double max_cost = 1E12;
+    cout << "state before " << state << endl;
+
+    for (auto successor_state: successor_states) {
+         
+         double successor_cost = costs[successor_state];
+         cout << successor_state << " " << successor_cost << endl;
+
+         if (successor_cost < max_cost){
+            state = successor_state;
+            max_cost = successor_cost;
+         }
+
     }
 
-    bool flag = true;
-    if (this->lane != goal_lane) {
-        
-        state = "PLCL" ;
-        
-        if ( flag == true) {
-            state = "LCL" ;
-            flag = false;
-        }
-    }
-    else {
-        state = "KL"; 
-    }
-
-
+    cout << "state after " << state << endl;
 
 }
 
