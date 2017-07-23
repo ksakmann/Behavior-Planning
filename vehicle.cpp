@@ -28,13 +28,10 @@ vector<string> Vehicle::get_successor_states() {
     string state = this->state;
     vector<string> successor_states;
     
-
     if (state.compare("KL") == 0) {
         successor_states.push_back("KL");
         successor_states.push_back("PLCL");
         successor_states.push_back("PLCR");
-        successor_states.push_back("LCL");
-        successor_states.push_back("LCR");
     }
 
     else if (state.compare("PLCL") == 0) {
@@ -65,13 +62,8 @@ vector<string> Vehicle::get_successor_states() {
         successor_states.erase(std::find(successor_states.begin(),successor_states.end(),"PLCL"));
     }
 
-
-    for (auto state: successor_states) cout << state << " ";
-
-    return successor_states;
-    
+    return successor_states;    
 }
-
 
 
 // TODO - Implement this method.
@@ -111,18 +103,16 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     */
 
     //vector<string> possible_successor_states =  
-
-
-    get_successor_states(); 
-    
-/*    for (int i = 1; i < predictions.size(); ++i) {
+    vector<string> successor_states = get_successor_states(); 
+    for (auto state: successor_states) cout << state << " " << endl;
+        
+    for (int i = 1; i < predictions.size(); ++i) {
         for (int j = 0; j < predictions[i].size(); ++j) {
             cout << "ID "    << i
                  << " Lane:" << predictions[i][j][0] 
                  << " S:"    << predictions[i][j][1] << endl;
         }
     }
-*/
 
     bool flag = true;
     if (this->lane != goal_lane) {
