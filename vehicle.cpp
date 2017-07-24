@@ -25,7 +25,6 @@ Vehicle::~Vehicle() {}
 
 vector<string> Vehicle::get_successor_states() {
 
-    string state = this->state;
     vector<string> successor_states;
     
     if (state.compare("KL") == 0) {
@@ -46,7 +45,7 @@ vector<string> Vehicle::get_successor_states() {
         successor_states.push_back("LCR");
     }
 
-    else if (state.compare("LCL") == 0) {
+    else if (state == "LCL") {
         successor_states.push_back("KL");
     }
 
@@ -55,11 +54,11 @@ vector<string> Vehicle::get_successor_states() {
     }
 
     if (this->lane == 0) {
-        successor_states.erase(std::find(successor_states.begin(),successor_states.end(),"PLCR"));
+        successor_states.erase(std::remove(successor_states.begin(), successor_states.end(), "PLCR"), successor_states.end());
     }
     
     if (this->lane == 3) {
-        successor_states.erase(std::find(successor_states.begin(),successor_states.end(),"PLCL"));
+        successor_states.erase(std::remove(successor_states.begin(), successor_states.end(), "PLCL"), successor_states.end());
     }
 
     return successor_states;    
@@ -103,14 +102,14 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     */
 
     auto kl_cost = [this]() {
-        auto dl = (lane - goal_lane);        
+        auto dl = 1.0 * (lane - goal_lane);        
         return dl * dl;
     };
 
     auto plc_cost = [this](int delta_lane) {
-        auto dl = (lane + delta_lane - goal_lane);
-        //cout << "dl " << dl << " lane " << lane << " delta_lane " << delta_lane << " goal lane " << goal_lane << endl;
-        return dl * dl;
+        double dl = (lane + 0.5 * delta_lane - goal_lane);    
+        cout << "dl " << dl << " lane " << lane << " delta_lane " << delta_lane << " goal lane " << goal_lane << endl;        
+        return dl*dl;
     };
 
     auto cl_cost = [this](int delta_lane, const map<int, vector<vector<int>>>& predictions) {
@@ -121,19 +120,26 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
             int now = 0;
             int v_id = it->first;
             vector<vector<int> > v = it->second;
+            // cout << "s " << s << " lane " << lane <<  " v_id " << v_id << "  v[now][0]= "<< v[now][0] << "  v[now][1]= "<< v[now][1] <<endl;                
+            // v_id = -1 is our car
+            if (v_id != -1) {
+            
+                bool collision = (abs(lane - v[now][0]) == 1) && (abs(s - v[now][1]) <= L);
 
-            //bool collision = (lane == v[now][0] ) && (abs(s - v[now][1]) <= L);
-
-            //if (collision) return 1E7;
+                if (collision) {
+                    return 100000.0;                                    
+                }
+            }
 
         }
 
-        auto dl = (lane + delta_lane - goal_lane);
+        auto dl = 1.0*(lane + delta_lane - goal_lane);
         return dl*dl;
 
     };
 
     vector<string> successor_states = get_successor_states(); 
+
     map<string,double> costs;
 
     costs["KL"] = kl_cost();
@@ -142,23 +148,19 @@ void Vehicle::update_state(map<int,vector < vector<int> > > predictions) {
     costs["LCL"] = cl_cost(1, predictions);
     costs["LCR"] = cl_cost(-1, predictions);
 
-    
+
     double max_cost = 1E12;
-    cout << "state before " << state << endl;
 
     for (auto successor_state: successor_states) {
-         
+          
          double successor_cost = costs[successor_state];
-         cout << successor_state << " " << successor_cost << endl;
-
+         cout << "successor_state " << successor_state << " " << " successor_cost" << successor_cost << endl;
          if (successor_cost < max_cost){
             state = successor_state;
             max_cost = successor_cost;
          }
 
     }
-
-    cout << "state after " << state << endl;
 
 }
 
